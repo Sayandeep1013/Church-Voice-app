@@ -1,85 +1,83 @@
 # Church Voice — Scripture Recording Platform
 
-A full-stack platform for recording, managing, and listening to scripture audio narration. Built with Next.js (frontend) and Express + MongoDB (backend).
+A platform for recording, managing, and listening to scripture audio narration — upload a manuscript, record verse-by-verse in a dedicated studio, and publish a Spotify-style listening experience with active-verse highlighting and auto-advance.
 
-## Project Structure
+## Screenshots
 
-```
-├── frontend/          Next.js 16 app (App Router)
-│   ├── src/app/       Pages and routes
-│   ├── src/components/UI and shared components
-│   └── src/lib/       API client, auth context, utilities
-├── backend/           Express + TypeScript API server
-│   └── src/
-│       ├── routes/    Auth, books, chapters, recordings, analytics
-│       ├── models/    Mongoose schemas (User, Book, Recording)
-│       ├── middleware/ JWT auth, Zod validation
-│       └── utils/     R2 storage, error handling
-├── docker-compose.yml MongoDB + Backend + Frontend
-└── Dockerfile         Multi-stage frontend build
-```
+**Public site**
+
+| Home | Library | Book detail |
+|---|---|---|
+| ![Landing page](screenshots/readme/01-home.png) | ![Library — books with completion %](screenshots/readme/02-library.png) | ![Book detail — chapters and verse counts](screenshots/readme/03-book-detail.png) |
+
+**Reader**
+
+| Light | Playing | Dark |
+|---|---|---|
+| ![Reader, light theme](screenshots/readme/04-reader-light.png) | ![Reader with the bottom player active](screenshots/readme/05-reader-playing.png) | ![Reader, dark theme, active verse highlighting](screenshots/readme/06-reader-dark.png) |
+
+**Admin**
+
+| Login | Dashboard | Management |
+|---|---|---|
+| ![Admin login](screenshots/readme/07-login.png) | ![Admin dashboard — books/chapters/verses/recordings totals](screenshots/readme/08-admin-dashboard.png) | ![Management — content list](screenshots/readme/09-management.png) |
+
+| Analytics | Upload | Recording Studio |
+|---|---|---|
+| ![Analytics — listening stats](screenshots/readme/10-analytics.png) | ![Upload a manuscript](screenshots/readme/11-upload.png) | ![Scripture Studio — verse-by-verse recording deck](screenshots/readme/12-recording-studio.png) |
+
+**Mobile**
+
+| Home | Library | Reader |
+|---|---|---|
+| ![Mobile home](screenshots/readme/13-mobile-home.png) | ![Mobile library](screenshots/readme/14-mobile-library.png) | ![Mobile reader](screenshots/readme/15-mobile-reader.png) |
+
+## How it works
+
+- **Upload** — drag & drop a PDF or EPUB manuscript; the app parses it into books, chapters, and verses
+- **Record** — the Scripture Studio steps through a chapter verse by verse, with a live waveform, a verse timeline, and a per-chapter completion blueprint
+- **Publish** — the Reader shows recorded verses as playable with active-verse highlighting and auto-advance to the next recorded verse
+- **Listen** — a persistent bottom player (play/pause, seek, skip, speed control) follows across pages
+- **Admin** — a single-admin dashboard tracks books/chapters/verses/recordings totals, per-book completion, and listening analytics
+
+## Tech Stack
+
+- **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS 4, Framer Motion, Recharts, epub.js / pdf.js for manuscript parsing
+- **Backend:** Supabase (Postgres, Auth) — no separate API server
+- **Auth:** Single-admin login (env-configured credentials, session cookie)
+- **Storage:** Audio recordings in Supabase; see `frontend/scripts/schema.sql` for the schema
 
 ## Quick Start (Development)
 
 ### Prerequisites
 
 - Node.js 20+
-- MongoDB (local or Docker)
+- A Supabase project (Postgres + connection string)
 
-### Backend
-
-```bash
-cd backend
-cp .env.example .env     # Configure MongoDB URI, JWT secret, R2 keys
-npm install
-npm run dev              # Starts on port 4000
-```
-
-### Frontend
+### Setup
 
 ```bash
 cd frontend
+cp .env.example .env.local   # fill in Supabase URL/keys, admin email+password, session secret
 npm install
-npm run dev              # Starts on port 3000
+npm run dev                  # starts on port 3000
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Production (Docker)
+## Project Structure
 
-```bash
-docker compose up --build
+```
+frontend/
+  src/app/            Pages: home, library, book/[id], reader/[bookId]/[chapterId],
+                       login, admin, management, analytics, upload, recording
+  src/components/      UI and shared components
+  src/lib/supabase/    Supabase client
+  src/lib/auth/        Single-admin session auth
+  scripts/             DB migration + schema
+screenshots/           README screenshots
 ```
 
-This starts:
-- **MongoDB** on port 27017
-- **Backend** (Express API) on port 4000
-- **Frontend** (Next.js standalone) on port 3000
+## License
 
-## API Endpoints
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/auth/register` | No | Create account |
-| POST | `/api/auth/login` | No | Sign in (returns JWT) |
-| GET | `/api/auth/me` | Yes | Current user profile |
-| GET | `/api/books` | Yes | List user's books |
-| POST | `/api/books` | Yes | Create book with chapters/verses |
-| GET | `/api/books/:id` | Yes | Get book details |
-| PATCH | `/api/books/:id` | Yes | Update book metadata |
-| DELETE | `/api/books/:id` | Yes | Delete book |
-| POST | `/api/recordings/:bookId/chapters/:chapterId/verses/:verseId` | Yes | Upload audio recording |
-| GET | `/api/recordings/:bookId/chapters/:chapterId/verses/:verseId` | Yes | Get recording |
-| GET | `/api/analytics` | Yes | Platform statistics |
-
-## Audio Storage
-
-Audio files are stored on **Cloudflare R2** (S3-compatible). Falls back to local-dev mode if R2 credentials aren't configured.
-
-## Tech Stack
-
-- **Frontend:** Next.js 16, React 19, Tailwind CSS 4, Framer Motion, Recharts
-- **Backend:** Express, TypeScript, Mongoose, JWT, Zod
-- **Database:** MongoDB
-- **Storage:** Cloudflare R2 (S3)
-- **Deployment:** Docker, docker-compose
+Fork of [SudipThandar/Church-Voice-app](https://github.com/SudipThandar/Church-Voice-app).
